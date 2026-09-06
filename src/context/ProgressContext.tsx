@@ -8,16 +8,21 @@ import {
 } from "react";
 
 type ProgressContextType = {
-  hiraganaDay1Passed: boolean;
-  completeHiraganaDay1: () => Promise<void>;
+  completedHiraganaDays: number[];
+  completeHiraganaDay: (day: number) => Promise<void>;
+  isHiraganaDayCompleted: (day: number) => boolean;
 };
 
 const ProgressContext = createContext<ProgressContextType | undefined>(
   undefined,
 );
 
+const STORAGE_KEY = "completedHiraganaDays";
+
 export function ProgressProvider({ children }: { children: ReactNode }) {
-  const [hiraganaDay1Passed, setHiraganaDay1Passed] = useState(false);
+  const [completedHiraganaDays, setCompletedHiraganaDays] = useState<number[]>(
+    [],
+  );
 
   useEffect(() => {
     loadProgress();
@@ -25,31 +30,63 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
 
   const loadProgress = async () => {
     try {
-      const value = await AsyncStorage.getItem("hiraganaDay1Passed");
+      const value = await AsyncStorage.getItem(STORAGE_KEY);
 
-      if (value === "true") {
-        setHiraganaDay1Passed(true);
+      if (value) {
+        const parsed = JSON.parse(value);
+
+        if (Array.isArray(parsed)) {
+          setCompletedHiraganaDays(parsed);
+        }
+      }
+
+      // Migration dari sistem lama Day 1
+      const oldDay1 = await AsyncStorage.getItem("hiraganaDay1Passed");
+
+      if (oldDay1 === "true") {
+        setCompletedHiraganaDays((current) => {
+          if (current.includes(1)) {
+            return current;
+          }
+
+          const updated = [...current, 1];
+
+          AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+
+          return updated;
+        });
       }
     } catch (error) {
       console.log("Gagal membaca progress:", error);
     }
   };
 
-  const completeHiraganaDay1 = async () => {
+  const completeHiraganaDay = async (day: number) => {
     try {
-      await AsyncStorage.setItem("hiraganaDay1Passed", "true");
+      if (completedHiraganaDays.includes(day)) {
+        return;
+      }
 
-      setHiraganaDay1Passed(true);
+      const updated = [...completedHiraganaDays, day].sort((a, b) => a - b);
+
+      setCompletedHiraganaDays(updated);
+
+      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
     } catch (error) {
       console.log("Gagal menyimpan progress:", error);
     }
   };
 
+  const isHiraganaDayCompleted = (day: number) => {
+    return completedHiraganaDays.includes(day);
+  };
+
   return (
     <ProgressContext.Provider
       value={{
-        hiraganaDay1Passed,
-        completeHiraganaDay1,
+        completedHiraganaDays,
+        completeHiraganaDay,
+        isHiraganaDayCompleted,
       }}
     >
       {children}

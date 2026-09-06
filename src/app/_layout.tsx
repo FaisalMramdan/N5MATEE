@@ -8,7 +8,9 @@ export default function RootLayout() {
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="hiragana" />
         <Stack.Screen name="learn" />
+        <Stack.Screen name="learn-day2" />
         <Stack.Screen name="quiz-day1" />
+        
       </Stack>
     </ProgressProvider>
   );

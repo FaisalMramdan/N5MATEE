@@ -86,14 +86,25 @@ const hiraganaLessons = [
 ];
 
 export default function HiraganaScreen() {
-  const { hiraganaDay1Passed } = useProgress();
-  const openLesson = (id: number) => {
+  const {
+  completedHiraganaDays,
+  isHiraganaDayCompleted,
+} = useProgress();
+ const openLesson = (id: number) => {
+  const unlocked =
+    id === 1 ||
+    completedHiraganaDays.includes(id - 1);
+
+  if (!unlocked) {
+    return;
+  }
+
   if (id === 1) {
     router.push("./learn");
   }
 
-  if (id === 2 && hiraganaDay1Passed) {
-    console.log("Day 2 sudah terbuka");
+  if (id === 2) {
+    router.push("./learn-day2");
   }
 };
 
@@ -146,13 +157,14 @@ export default function HiraganaScreen() {
 
       <View style={styles.lessonList}>
         {hiraganaLessons.map((lesson) => {
-          const day1Completed = lesson.id === 1 && hiraganaDay1Passed;
+          const completed =
+  isHiraganaDayCompleted(lesson.id);
 
-          const day2Unlocked = lesson.id === 2 && hiraganaDay1Passed;
+const unlocked =
+  lesson.id === 1 ||
+  isHiraganaDayCompleted(lesson.id - 1);
 
-          const active = lesson.id === 1 || day2Unlocked;
-
-          const locked = !active;
+const locked = !unlocked;
 
           return (
             <Pressable
@@ -169,9 +181,11 @@ export default function HiraganaScreen() {
                 <View style={styles.lessonHeader}>
                   <Text style={styles.lessonDay}>{lesson.day}</Text>
 
-                  {day1Completed ? (
-                    <Text style={styles.completedLabel}>SELESAI ✓</Text>
-                  ) : locked ? (
+                  {completed ? (
+  <Text style={styles.completedLabel}>
+    SELESAI ✓
+  </Text>
+) : locked ? (
                     <Text style={styles.lock}>🔒</Text>
                   ) : (
                     <Text style={styles.activeLabel}>MULAI</Text>

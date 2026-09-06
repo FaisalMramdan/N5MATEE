@@ -58,7 +58,7 @@ const questions = [
 ];
 
 export default function QuizDay1Screen() {
-  const { completeHiraganaDay1 } = useProgress();
+  const { completeHiraganaDay } = useProgress();
 
   const [currentQuestion, setCurrentQuestion] = useState(0);
 
@@ -94,7 +94,7 @@ export default function QuizDay1Screen() {
     setFinished(true);
 
     if (finalScore >= 8) {
-      await completeHiraganaDay1();
+      await completeHiraganaDay(1);
     }
   };
 
