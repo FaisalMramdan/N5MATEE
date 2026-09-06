@@ -1,11 +1,6 @@
+import { router } from "expo-router";
 import { useState } from "react";
-import {
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
 const hiraganaDay2 = [
   { id: 1, char: "さ", romaji: "sa" },
@@ -27,8 +22,7 @@ export default function LearnDay2Screen() {
 
   const current = hiraganaDay2[currentIndex];
 
-  const progress =
-    (learned.length / hiraganaDay2.length) * 100;
+  const progress = (learned.length / hiraganaDay2.length) * 100;
 
   const previousCard = () => {
     if (currentIndex > 0) {
@@ -62,19 +56,15 @@ export default function LearnDay2Screen() {
     >
       <Text style={styles.day}>DAY 2</Text>
 
-      <Text style={styles.title}>
-        Sa & Ta 🇯🇵
-      </Text>
+      <Text style={styles.title}>Sa & Ta 🇯🇵</Text>
 
       <Text style={styles.subtitle}>
-        Pelajari kelompok さ dan た. Perhatikan bacaan khusus
-        し = shi, ち = chi, dan つ = tsu.
+        Pelajari kelompok さ dan た. Perhatikan bacaan khusus し = shi, ち =
+        chi, dan つ = tsu.
       </Text>
 
       <View style={styles.progressHeader}>
-        <Text style={styles.progressLabel}>
-          Progress Belajar
-        </Text>
+        <Text style={styles.progressLabel}>Progress Belajar</Text>
 
         <Text style={styles.progressCount}>
           {learned.length}/{hiraganaDay2.length}
@@ -100,24 +90,18 @@ export default function LearnDay2Screen() {
         style={styles.flashCard}
         onPress={() => setShowAnswer(!showAnswer)}
       >
-        <Text style={styles.hiragana}>
-          {current.char}
-        </Text>
+        <Text style={styles.hiragana}>{current.char}</Text>
 
         {showAnswer ? (
           <>
-            <Text style={styles.romaji}>
-              {current.romaji}
-            </Text>
+            <Text style={styles.romaji}>{current.romaji}</Text>
 
             <Text style={styles.answerHint}>
               Tekan kartu untuk menyembunyikan jawaban
             </Text>
           </>
         ) : (
-          <Text style={styles.tapHint}>
-            Tebak cara bacanya
-          </Text>
+          <Text style={styles.tapHint}>Tebak cara bacanya</Text>
         )}
       </Pressable>
 
@@ -126,20 +110,13 @@ export default function LearnDay2Screen() {
           style={styles.showButton}
           onPress={() => setShowAnswer(true)}
         >
-          <Text style={styles.showButtonText}>
-            Lihat Jawaban
-          </Text>
+          <Text style={styles.showButtonText}>Lihat Jawaban</Text>
         </Pressable>
       )}
 
       {showAnswer && (
-        <Pressable
-          style={styles.learnedButton}
-          onPress={markAsLearned}
-        >
-          <Text style={styles.learnedButtonText}>
-            Saya Sudah Ingat ✓
-          </Text>
+        <Pressable style={styles.learnedButton} onPress={markAsLearned}>
+          <Text style={styles.learnedButtonText}>Saya Sudah Ingat ✓</Text>
         </Pressable>
       )}
 
@@ -147,15 +124,12 @@ export default function LearnDay2Screen() {
         <Pressable
           style={[
             styles.navigationButton,
-            currentIndex === 0 &&
-              styles.navigationButtonDisabled,
+            currentIndex === 0 && styles.navigationButtonDisabled,
           ]}
           onPress={previousCard}
           disabled={currentIndex === 0}
         >
-          <Text style={styles.navigationText}>
-            ← Sebelumnya
-          </Text>
+          <Text style={styles.navigationText}>← Sebelumnya</Text>
         </Pressable>
 
         <Pressable
@@ -165,20 +139,14 @@ export default function LearnDay2Screen() {
               styles.navigationButtonDisabled,
           ]}
           onPress={nextCard}
-          disabled={
-            currentIndex === hiraganaDay2.length - 1
-          }
+          disabled={currentIndex === hiraganaDay2.length - 1}
         >
-          <Text style={styles.navigationText}>
-            Berikutnya →
-          </Text>
+          <Text style={styles.navigationText}>Berikutnya →</Text>
         </Pressable>
       </View>
 
       <View style={styles.listSection}>
-        <Text style={styles.sectionTitle}>
-          Huruf Day 2
-        </Text>
+        <Text style={styles.sectionTitle}>Huruf Day 2</Text>
 
         <View style={styles.grid}>
           {hiraganaDay2.map((item, index) => {
@@ -198,17 +166,11 @@ export default function LearnDay2Screen() {
                   setShowAnswer(false);
                 }}
               >
-                <Text style={styles.smallCharacter}>
-                  {item.char}
-                </Text>
+                <Text style={styles.smallCharacter}>{item.char}</Text>
 
-                <Text style={styles.smallRomaji}>
-                  {item.romaji}
-                </Text>
+                <Text style={styles.smallRomaji}>{item.romaji}</Text>
 
-                {isLearned && (
-                  <Text style={styles.check}>✓</Text>
-                )}
+                {isLearned && <Text style={styles.check}>✓</Text>}
               </Pressable>
             );
           })}
@@ -219,30 +181,31 @@ export default function LearnDay2Screen() {
         <Text style={styles.tipEmoji}>💡</Text>
 
         <View style={styles.tipContent}>
-          <Text style={styles.tipTitle}>
-            Perhatikan tiga huruf ini
-          </Text>
+          <Text style={styles.tipTitle}>Perhatikan tiga huruf ini</Text>
 
           <Text style={styles.tipText}>
-            し dibaca shi, ち dibaca chi, dan つ dibaca tsu.
-            Jangan membacanya si, ti, atau tu.
+            し dibaca shi, ち dibaca chi, dan つ dibaca tsu. Jangan membacanya
+            si, ti, atau tu.
           </Text>
         </View>
       </View>
 
       {learned.length === hiraganaDay2.length && (
         <View style={styles.completeCard}>
-          <Text style={styles.completeEmoji}>
-            🎉
-          </Text>
+          <Text style={styles.completeEmoji}>🎉</Text>
 
-          <Text style={styles.completeTitle}>
-            Flashcard Day 2 selesai!
-          </Text>
+          <Text style={styles.completeTitle}>Flashcard Day 2 selesai!</Text>
 
           <Text style={styles.completeText}>
-            Selanjutnya kita akan membuat Quiz Day 2.
+            Sekarang uji kemampuanmu untuk membuka Day 3.
           </Text>
+
+          <Pressable
+            style={styles.quizButton}
+            onPress={() => router.push("./quiz-day2")}
+          >
+            <Text style={styles.quizButtonText}>Mulai Quiz Day 2</Text>
+          </Pressable>
         </View>
       )}
     </ScrollView>
@@ -515,5 +478,19 @@ const styles = StyleSheet.create({
     color: "#777",
     textAlign: "center",
     marginTop: 8,
+  },
+  quizButton: {
+    backgroundColor: "#1E1E1E",
+    paddingVertical: 15,
+    borderRadius: 14,
+    marginTop: 18,
+    width: "100%",
+    alignItems: "center",
+  },
+
+  quizButtonText: {
+    color: "#FFFFFF",
+    fontSize: 15,
+    fontWeight: "700",
   },
 });

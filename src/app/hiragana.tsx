@@ -99,13 +99,7 @@ export default function HiraganaScreen() {
     return;
   }
 
-  if (id === 1) {
-    router.push("./learn");
-  }
-
-  if (id === 2) {
-    router.push("./learn-day2");
-  }
+  router.push(`/hiragana-lesson/${id}` as any);
 };
 
   return (
