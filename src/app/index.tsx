@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { router } from "expo-router";
 import {
   Pressable,
   ScrollView,
@@ -87,10 +88,6 @@ export default function HomeScreen() {
       ? (completedMissions / missions.length) * 100
       : 0;
 
-  // =========================
-  // UI
-  // =========================
-
   return (
     <ScrollView
       style={styles.container}
@@ -116,9 +113,7 @@ export default function HomeScreen() {
 
       {/* JLPT CARD */}
       <View style={styles.examCard}>
-        <Text style={styles.examLabel}>
-          JLPT N5
-        </Text>
+        <Text style={styles.examLabel}>JLPT N5</Text>
 
         <Text style={styles.examTitle}>
           Menuju Ujian JLPT
@@ -145,7 +140,7 @@ export default function HomeScreen() {
         </View>
       </View>
 
-      {/* DAILY MISSION HEADER */}
+      {/* DAILY MISSION */}
       <View style={styles.sectionHeader}>
         <View>
           <Text style={styles.sectionTitle}>
@@ -214,13 +209,71 @@ export default function HomeScreen() {
           </Pressable>
         ))}
       </View>
+
+      {/* JAPANESE LESSON TODAY */}
+      <View style={styles.lessonSection}>
+        <Text style={styles.sectionTitle}>
+          Materi Jepang Hari Ini
+        </Text>
+
+        <View style={styles.lessonCard}>
+          <View style={styles.lessonHeader}>
+            <View>
+              <Text style={styles.lessonDay}>
+                DAY 1
+              </Text>
+
+              <Text style={styles.lessonTitle}>
+                Hiragana Dasar
+              </Text>
+            </View>
+
+            <Text style={styles.lessonEmoji}>
+              🇯🇵
+            </Text>
+          </View>
+
+          <Text style={styles.lessonDescription}>
+            Pelajari 10 huruf Hiragana pertama.
+          </Text>
+
+          <View style={styles.hiraganaContainer}>
+            <Text style={styles.hiragana}>
+              あ い う え お
+            </Text>
+
+            <Text style={styles.hiragana}>
+              か き く け こ
+            </Text>
+          </View>
+
+          <View style={styles.lessonInfo}>
+            <Text style={styles.lessonInfoText}>
+              10 Huruf
+            </Text>
+
+            <Text style={styles.lessonInfoText}>
+              •
+            </Text>
+
+            <Text style={styles.lessonInfoText}>
+              ± 30 menit
+            </Text>
+          </View>
+
+          <Pressable
+            style={styles.startButton}
+            onPress={() => router.push("./learn")}
+          >
+            <Text style={styles.startButtonText}>
+              Mulai Belajar
+            </Text>
+          </Pressable>
+        </View>
+      </View>
     </ScrollView>
   );
 }
-
-// =========================
-// STYLES
-// =========================
 
 const styles = StyleSheet.create({
   container: {
@@ -269,7 +322,7 @@ const styles = StyleSheet.create({
     color: "#1E1E1E",
   },
 
-  // EXAM CARD
+  // JLPT CARD
   examCard: {
     backgroundColor: "#FFFFFF",
     borderRadius: 24,
@@ -414,5 +467,83 @@ const styles = StyleSheet.create({
   completedText: {
     textDecorationLine: "line-through",
     color: "#999",
+  },
+
+  // JAPANESE LESSON
+  lessonSection: {
+    marginTop: 32,
+  },
+
+  lessonCard: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 24,
+    padding: 20,
+    marginTop: 14,
+  },
+
+  lessonHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+
+  lessonDay: {
+    fontSize: 12,
+    fontWeight: "700",
+    color: "#888",
+    marginBottom: 5,
+  },
+
+  lessonTitle: {
+    fontSize: 21,
+    fontWeight: "700",
+    color: "#1E1E1E",
+  },
+
+  lessonEmoji: {
+    fontSize: 30,
+  },
+
+  lessonDescription: {
+    fontSize: 14,
+    color: "#777",
+    marginTop: 12,
+  },
+
+  hiraganaContainer: {
+    marginTop: 22,
+    marginBottom: 20,
+  },
+
+  hiragana: {
+    fontSize: 30,
+    fontWeight: "600",
+    color: "#1E1E1E",
+    letterSpacing: 6,
+    marginBottom: 8,
+  },
+
+  lessonInfo: {
+    flexDirection: "row",
+    gap: 8,
+    marginBottom: 18,
+  },
+
+  lessonInfoText: {
+    color: "#888",
+    fontSize: 13,
+  },
+
+  startButton: {
+    backgroundColor: "#1E1E1E",
+    paddingVertical: 15,
+    borderRadius: 14,
+    alignItems: "center",
+  },
+
+  startButtonText: {
+    color: "#FFFFFF",
+    fontSize: 15,
+    fontWeight: "700",
   },
 });
