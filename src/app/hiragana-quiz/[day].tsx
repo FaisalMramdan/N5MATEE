@@ -14,6 +14,7 @@ type QuizQuestion = {
   question: string;
   options: string[];
   answer: string;
+  character: string;
 };
 
 function shuffle<T>(items: T[]): T[] {
@@ -40,6 +41,7 @@ function createQuestions(characters: HiraganaCharacter[]): QuizQuestion[] {
         question: `Apa bacaan dari ${item.char}?`,
         options: createOptions(item.romaji, romajiPool),
         answer: item.romaji,
+        character: item.char,
       };
     }
 
@@ -48,6 +50,7 @@ function createQuestions(characters: HiraganaCharacter[]): QuizQuestion[] {
       question: `Huruf mana yang dibaca "${item.romaji}"?`,
       options: createOptions(item.char, characterPool),
       answer: item.char,
+      character: item.char,
     };
   });
 }
@@ -59,14 +62,23 @@ export default function HiraganaQuizScreen() {
 
   const lesson = hiraganaLessons.find((item) => item.day === dayNumber);
 
-  const { completeHiraganaDay } = useProgress();
+  const { completeHiraganaDay, recordHiraganaWrongAnswer } = useProgress();
 
   const questions = useMemo(() => {
     if (!lesson) {
       return [];
     }
 
-    return createQuestions(lesson.characters);
+    // Acak semua karakter
+    const shuffledCharacters = shuffle(lesson.characters);
+
+    // Maksimal 10 karakter per quiz
+    const selectedCharacters = shuffledCharacters.slice(
+      0,
+      Math.min(10, shuffledCharacters.length),
+    );
+
+    return createQuestions(selectedCharacters);
   }, [lesson]);
 
   const [currentQuestion, setCurrentQuestion] = useState(0);
@@ -105,6 +117,9 @@ export default function HiraganaQuizScreen() {
     const isCorrect = selectedAnswer === question.answer;
 
     const newScore = score + (isCorrect ? 1 : 0);
+    if (!isCorrect) {
+      await recordHiraganaWrongAnswer(question.character);
+    }
 
     // SOAL TERAKHIR
     if (currentQuestion === questions.length - 1) {

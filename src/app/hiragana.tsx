@@ -1,106 +1,28 @@
 import { router } from "expo-router";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
-import { useProgress } from "../context/ProgressContext";
 
-const hiraganaLessons = [
-  {
-    id: 1,
-    day: "DAY 1",
-    title: "A & Ka",
-    characters: "あ い う え お • か き く け こ",
-    status: "active",
-    progress: 0,
-  },
-  {
-    id: 2,
-    day: "DAY 2",
-    title: "Sa & Ta",
-    characters: "さ し す せ そ • た ち つ て と",
-    status: "locked",
-    progress: 0,
-  },
-  {
-    id: 3,
-    day: "DAY 3",
-    title: "Na & Ha",
-    characters: "な に ぬ ね の • は ひ ふ へ ほ",
-    status: "locked",
-    progress: 0,
-  },
-  {
-    id: 4,
-    day: "DAY 4",
-    title: "Ma & Ya",
-    characters: "ま み む め も • や ゆ よ",
-    status: "locked",
-    progress: 0,
-  },
-  {
-    id: 5,
-    day: "DAY 5",
-    title: "Ra, Wa & N",
-    characters: "ら り る れ ろ • わ を ん",
-    status: "locked",
-    progress: 0,
-  },
-  {
-    id: 6,
-    day: "DAY 6",
-    title: "Dakuten I",
-    characters: "が ぎ ぐ げ ご • ざ じ ず ぜ ぞ",
-    status: "locked",
-    progress: 0,
-  },
-  {
-    id: 7,
-    day: "DAY 7",
-    title: "Dakuten II",
-    characters: "だ行 • ば行 • ぱ行",
-    status: "locked",
-    progress: 0,
-  },
-  {
-    id: 8,
-    day: "DAY 8",
-    title: "Kombinasi Hiragana",
-    characters: "きゃ • きゅ • きょ • しゃ • しゅ • しょ...",
-    status: "locked",
-    progress: 0,
-  },
-  {
-    id: 9,
-    day: "DAY 9",
-    title: "Review Hiragana",
-    characters: "Review seluruh materi Hiragana",
-    status: "locked",
-    progress: 0,
-  },
-  {
-    id: 10,
-    day: "DAY 10",
-    title: "Final Quiz",
-    characters: "Tes kemampuan Hiragana",
-    status: "locked",
-    progress: 0,
-  },
-];
+import { useProgress } from "../context/ProgressContext";
+import { hiraganaLessons } from "../data/hiraganaLessons";
 
 export default function HiraganaScreen() {
-  const {
-  completedHiraganaDays,
-  isHiraganaDayCompleted,
-} = useProgress();
- const openLesson = (id: number) => {
-  const unlocked =
-    id === 1 ||
-    completedHiraganaDays.includes(id - 1);
+  const { completedHiraganaDays, isHiraganaDayCompleted } = useProgress();
 
-  if (!unlocked) {
-    return;
-  }
+  const openLesson = (day: number) => {
+    const unlocked = day === 1 || completedHiraganaDays.includes(day - 1);
 
-  router.push(`/hiragana-lesson/${id}` as any);
-};
+    if (!unlocked) {
+      return;
+    }
+
+    // Day 1 - 8 sudah menggunakan dynamic lesson
+    if (day <= 8) {
+      router.push(`/hiragana-lesson/${day}` as any);
+    }
+  };
+
+  const totalLessons = 10;
+
+  const progress = (completedHiraganaDays.length / totalLessons) * 100;
 
   return (
     <ScrollView
@@ -109,25 +31,27 @@ export default function HiraganaScreen() {
       showsVerticalScrollIndicator={false}
     >
       {/* HEADER */}
-      <Text style={styles.smallTitle}>JLPT N5</Text>
+      <Text style={styles.smallTitle}>N5MATE • HIRAGANA</Text>
 
-      <Text style={styles.title}>Hiragana ひらがな</Text>
+      <Text style={styles.title}>Hiragana 🇯🇵</Text>
 
       <Text style={styles.subtitle}>
-        Pelajari Hiragana secara bertahap sampai kamu bisa membacanya tanpa
-        bantuan romaji.
+        Kuasai Hiragana secara bertahap. Selesaikan quiz untuk membuka materi
+        berikutnya.
       </Text>
 
-      {/* PROGRESS CARD */}
+      {/* OVERALL PROGRESS */}
       <View style={styles.progressCard}>
         <View style={styles.progressHeader}>
           <View>
-            <Text style={styles.progressLabel}>PROGRESS HIRAGANA</Text>
+            <Text style={styles.progressLabel}>Progress Hiragana</Text>
 
-            <Text style={styles.progressTitle}>Day 1 dari 10</Text>
+            <Text style={styles.progressNumber}>
+              {completedHiraganaDays.length}/{totalLessons} Day
+            </Text>
           </View>
 
-          <Text style={styles.progressEmoji}>🌸</Text>
+          <Text style={styles.progressPercent}>{Math.round(progress)}%</Text>
         </View>
 
         <View style={styles.progressBackground}>
@@ -135,80 +59,143 @@ export default function HiraganaScreen() {
             style={[
               styles.progressBar,
               {
-                width: "10%",
+                width: `${Math.min(progress, 100)}%`,
               },
             ]}
           />
         </View>
-
-        <Text style={styles.progressText}>
-          Perjalanan baru dimulai. がんばって!
-        </Text>
       </View>
 
-      {/* LESSONS */}
-      <Text style={styles.sectionTitle}>Materi Hiragana</Text>
+      <Text style={styles.sectionTitle}>Roadmap Hiragana</Text>
 
-      <View style={styles.lessonList}>
-        {hiraganaLessons.map((lesson) => {
-          const completed =
-  isHiraganaDayCompleted(lesson.id);
+      {/* DAY 1 - 8 */}
+      {hiraganaLessons.map((lesson) => {
+        const completed = isHiraganaDayCompleted(lesson.day);
 
-const unlocked =
-  lesson.id === 1 ||
-  isHiraganaDayCompleted(lesson.id - 1);
+        const unlocked =
+          lesson.day === 1 || isHiraganaDayCompleted(lesson.day - 1);
 
-const locked = !unlocked;
+        const locked = !unlocked;
 
-          return (
-            <Pressable
-              key={lesson.id}
-              style={[styles.lessonCard, locked && styles.lessonCardLocked]}
-              disabled={locked}
-              onPress={() => openLesson(lesson.id)}
+        const preview = lesson.characters
+          .slice(0, 10)
+          .map((item) => item.char)
+          .join(" ");
+
+        return (
+          <Pressable
+            key={lesson.day}
+            disabled={locked}
+            style={[
+              styles.lessonCard,
+              locked && styles.lockedCard,
+              completed && styles.completedCard,
+            ]}
+            onPress={() => openLesson(lesson.day)}
+          >
+            <View style={styles.dayBox}>
+              <Text style={styles.dayText}>{lesson.day}</Text>
+            </View>
+
+            <View style={styles.lessonInfo}>
+              <Text style={styles.lessonDay}>DAY {lesson.day}</Text>
+
+              <Text style={styles.lessonTitle}>{lesson.title}</Text>
+
+              <Text style={styles.characters} numberOfLines={2}>
+                {preview}
+                {lesson.characters.length > 10 ? " ..." : ""}
+              </Text>
+            </View>
+
+            <View
+              style={[styles.statusBadge, completed && styles.completedBadge]}
             >
-              <View style={styles.lessonNumber}>
-                <Text style={styles.lessonNumberText}>{lesson.id}</Text>
-              </View>
+              <Text
+                style={[
+                  styles.statusText,
+                  completed && styles.completedStatusText,
+                ]}
+              >
+                {completed ? "SELESAI ✓" : locked ? "🔒" : "MULAI"}
+              </Text>
+            </View>
+          </Pressable>
+        );
+      })}
 
-              <View style={styles.lessonContent}>
-                <View style={styles.lessonHeader}>
-                  <Text style={styles.lessonDay}>{lesson.day}</Text>
+      {/* DAY 9 */}
+      <SpecialLesson
+  day={9}
+  title="Smart Review Hiragana"
+  description="Fokus pada Hiragana yang sering salah"
+  unlocked={isHiraganaDayCompleted(8)}
+  onPress={() =>
+    router.push("/hiragana-review" as any)
+  }
+/>
 
-                  {completed ? (
-  <Text style={styles.completedLabel}>
-    SELESAI ✓
-  </Text>
-) : locked ? (
-                    <Text style={styles.lock}>🔒</Text>
-                  ) : (
-                    <Text style={styles.activeLabel}>MULAI</Text>
-                  )}
-                </View>
+      {/* DAY 10 */}
+      <SpecialLesson
+        day={10}
+        title="Final Quiz"
+        description="Ujian akhir Hiragana"
+        unlocked={false}
+      />
 
-                <Text style={styles.lessonTitle}>{lesson.title}</Text>
-
-                <Text style={styles.characters}>{lesson.characters}</Text>
-              </View>
-            </Pressable>
-          );
-        })}
-      </View>
-
-      {/* INFO */}
       <View style={styles.infoCard}>
         <Text style={styles.infoEmoji}>💡</Text>
 
-        <View style={styles.infoContent}>
-          <Text style={styles.infoTitle}>Kenapa materinya dikunci?</Text>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.infoTitle}>Cara membuka materi</Text>
 
           <Text style={styles.infoText}>
-            Supaya kamu fokus menguasai satu bagian terlebih dahulu sebelum
-            berpindah ke materi berikutnya.
+            Pelajari flashcard lalu dapatkan minimal nilai 80% pada quiz.
+            Setelah lulus, Day berikutnya otomatis terbuka.
           </Text>
         </View>
       </View>
     </ScrollView>
+  );
+}
+
+type SpecialLessonProps = {
+  day: number;
+  title: string;
+  description: string;
+  unlocked: boolean;
+  onPress?: () => void;
+};
+
+function SpecialLesson({
+  day,
+  title,
+  description,
+  unlocked,
+  onPress,
+}: SpecialLessonProps) {
+  return (
+    <Pressable
+      disabled
+      onPress={onPress}
+      style={[styles.lessonCard, !unlocked && styles.lockedCard]}
+    >
+      <View style={styles.dayBox}>
+        <Text style={styles.dayText}>{day}</Text>
+      </View>
+
+      <View style={styles.lessonInfo}>
+        <Text style={styles.lessonDay}>DAY {day}</Text>
+
+        <Text style={styles.lessonTitle}>{title}</Text>
+
+        <Text style={styles.characters}>{description}</Text>
+      </View>
+
+      <View style={styles.statusBadge}>
+        <Text style={styles.statusText}>{unlocked ? "SEGERA" : "🔒"}</Text>
+      </View>
+    </Pressable>
   );
 }
 
@@ -228,58 +215,58 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: "700",
     color: "#888",
-    marginBottom: 5,
   },
 
   title: {
-    fontSize: 28,
+    fontSize: 30,
     fontWeight: "800",
     color: "#1E1E1E",
+    marginTop: 5,
   },
 
   subtitle: {
     fontSize: 14,
-    color: "#777",
     lineHeight: 21,
+    color: "#777",
     marginTop: 8,
-    marginBottom: 24,
   },
 
   progressCard: {
     backgroundColor: "#FFFFFF",
-    padding: 20,
     borderRadius: 22,
-    marginBottom: 30,
+    padding: 18,
+    marginTop: 24,
   },
 
   progressHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 18,
   },
 
   progressLabel: {
-    fontSize: 11,
-    fontWeight: "700",
-    color: "#888",
-    marginBottom: 5,
+    fontSize: 13,
+    color: "#777",
   },
 
-  progressTitle: {
-    fontSize: 19,
+  progressNumber: {
+    fontSize: 18,
+    fontWeight: "800",
+    color: "#1E1E1E",
+    marginTop: 4,
+  },
+
+  progressPercent: {
+    fontSize: 22,
     fontWeight: "800",
     color: "#1E1E1E",
   },
 
-  progressEmoji: {
-    fontSize: 30,
-  },
-
   progressBackground: {
     height: 8,
-    borderRadius: 10,
     backgroundColor: "#E5E7EB",
+    borderRadius: 10,
+    marginTop: 14,
     overflow: "hidden",
   },
 
@@ -288,96 +275,99 @@ const styles = StyleSheet.create({
     backgroundColor: "#1E1E1E",
   },
 
-  progressText: {
-    fontSize: 12,
-    color: "#888",
-    marginTop: 8,
-  },
-
   sectionTitle: {
-    fontSize: 20,
-    fontWeight: "700",
+    fontSize: 18,
+    fontWeight: "800",
     color: "#1E1E1E",
-    marginBottom: 15,
-  },
-
-  lessonList: {
-    gap: 12,
+    marginTop: 30,
+    marginBottom: 14,
   },
 
   lessonCard: {
     backgroundColor: "#FFFFFF",
     borderRadius: 20,
-    padding: 16,
+    padding: 14,
+    marginBottom: 12,
     flexDirection: "row",
+    alignItems: "center",
   },
 
-  lessonCardLocked: {
-    opacity: 0.5,
+  lockedCard: {
+    opacity: 0.45,
   },
 
-  lessonNumber: {
-    width: 46,
-    height: 46,
+  completedCard: {
+    backgroundColor: "#F0F1F4",
+  },
+
+  dayBox: {
+    width: 48,
+    height: 48,
     borderRadius: 14,
-    backgroundColor: "#F3F4F6",
+    backgroundColor: "#F1F2F5",
     justifyContent: "center",
     alignItems: "center",
-    marginRight: 14,
   },
 
-  lessonNumberText: {
-    fontSize: 17,
+  dayText: {
+    fontSize: 18,
     fontWeight: "800",
     color: "#1E1E1E",
   },
 
-  lessonContent: {
+  lessonInfo: {
     flex: 1,
-  },
-
-  lessonHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    marginLeft: 14,
   },
 
   lessonDay: {
     fontSize: 10,
     fontWeight: "700",
-    color: "#888",
-  },
-
-  activeLabel: {
-    fontSize: 10,
-    fontWeight: "800",
-    color: "#1E1E1E",
-  },
-
-  lock: {
-    fontSize: 13,
+    color: "#999",
   },
 
   lessonTitle: {
     fontSize: 16,
-    fontWeight: "700",
+    fontWeight: "800",
     color: "#1E1E1E",
-    marginTop: 4,
+    marginTop: 2,
   },
 
   characters: {
     fontSize: 12,
-    color: "#888",
-    marginTop: 6,
+    color: "#777",
+    marginTop: 5,
     lineHeight: 18,
+  },
+
+  statusBadge: {
+    backgroundColor: "#F1F2F5",
+    paddingHorizontal: 10,
+    paddingVertical: 7,
+    borderRadius: 10,
+    marginLeft: 8,
+  },
+
+  completedBadge: {
+    backgroundColor: "#1E1E1E",
+  },
+
+  statusText: {
+    fontSize: 10,
+    fontWeight: "800",
+    color: "#555",
+  },
+
+  completedStatusText: {
+    color: "#FFFFFF",
   },
 
   infoCard: {
     flexDirection: "row",
     backgroundColor: "#FFFFFF",
     borderRadius: 20,
-    padding: 18,
-    marginTop: 28,
+    padding: 16,
+    marginTop: 15,
   },
 
   infoEmoji: {
@@ -385,25 +375,16 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
 
-  infoContent: {
-    flex: 1,
-  },
-
   infoTitle: {
-    fontSize: 15,
-    fontWeight: "700",
+    fontSize: 14,
+    fontWeight: "800",
     color: "#1E1E1E",
-    marginBottom: 5,
   },
 
   infoText: {
-    fontSize: 13,
+    fontSize: 12,
     color: "#777",
-    lineHeight: 19,
-  },
-  completedLabel: {
-    fontSize: 10,
-    fontWeight: "800",
-    color: "#555",
+    lineHeight: 18,
+    marginTop: 4,
   },
 });

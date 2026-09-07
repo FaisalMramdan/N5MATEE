@@ -7,22 +7,53 @@ import {
   useState,
 } from "react";
 
+type WrongAnswers = {
+  [character: string]: number;
+};
+
 type ProgressContextType = {
+  // Hiragana Day Progress
   completedHiraganaDays: number[];
   completeHiraganaDay: (day: number) => Promise<void>;
   isHiraganaDayCompleted: (day: number) => boolean;
+
+  // Wrong Answer Tracker
+  hiraganaWrongAnswers: WrongAnswers;
+  recordHiraganaWrongAnswer: (
+    character: string
+  ) => Promise<void>;
+  resetHiraganaWrongAnswers: () => Promise<void>;
 };
 
-const ProgressContext = createContext<ProgressContextType | undefined>(
-  undefined,
-);
-
-const STORAGE_KEY = "completedHiraganaDays";
-
-export function ProgressProvider({ children }: { children: ReactNode }) {
-  const [completedHiraganaDays, setCompletedHiraganaDays] = useState<number[]>(
-    [],
+const ProgressContext =
+  createContext<ProgressContextType | undefined>(
+    undefined
   );
+
+const COMPLETED_DAYS_KEY =
+  "completedHiraganaDays";
+
+const WRONG_ANSWERS_KEY =
+  "hiraganaWrongAnswers";
+
+export function ProgressProvider({
+  children,
+}: {
+  children: ReactNode;
+}) {
+  const [
+    completedHiraganaDays,
+    setCompletedHiraganaDays,
+  ] = useState<number[]>([]);
+
+  const [
+    hiraganaWrongAnswers,
+    setHiraganaWrongAnswers,
+  ] = useState<WrongAnswers>({});
+
+  // ===============================
+  // LOAD DATA
+  // ===============================
 
   useEffect(() => {
     loadProgress();
@@ -30,56 +61,167 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
 
   const loadProgress = async () => {
     try {
-      const value = await AsyncStorage.getItem(STORAGE_KEY);
+      // LOAD COMPLETED DAYS
+      const savedDays =
+        await AsyncStorage.getItem(
+          COMPLETED_DAYS_KEY
+        );
 
-      if (value) {
-        const parsed = JSON.parse(value);
+      if (savedDays) {
+        const parsedDays =
+          JSON.parse(savedDays);
 
-        if (Array.isArray(parsed)) {
-          setCompletedHiraganaDays(parsed);
-        }
+        setCompletedHiraganaDays(
+          parsedDays
+        );
       }
 
-      // Migration dari sistem lama Day 1
-      const oldDay1 = await AsyncStorage.getItem("hiraganaDay1Passed");
+      // MIGRATION DARI SISTEM DAY 1 LAMA
+      const oldDay1 =
+        await AsyncStorage.getItem(
+          "hiraganaDay1Passed"
+        );
 
       if (oldDay1 === "true") {
-        setCompletedHiraganaDays((current) => {
-          if (current.includes(1)) {
-            return current;
+        setCompletedHiraganaDays(
+          (current) => {
+            if (current.includes(1)) {
+              return current;
+            }
+
+            const updated = [
+              ...current,
+              1,
+            ].sort((a, b) => a - b);
+
+            AsyncStorage.setItem(
+              COMPLETED_DAYS_KEY,
+              JSON.stringify(updated)
+            );
+
+            return updated;
           }
+        );
+      }
 
-          const updated = [...current, 1];
+      // LOAD WRONG ANSWERS
+      const savedWrongAnswers =
+        await AsyncStorage.getItem(
+          WRONG_ANSWERS_KEY
+        );
 
-          AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-
-          return updated;
-        });
+      if (savedWrongAnswers) {
+        setHiraganaWrongAnswers(
+          JSON.parse(savedWrongAnswers)
+        );
       }
     } catch (error) {
-      console.log("Gagal membaca progress:", error);
+      console.log(
+        "Gagal load progress:",
+        error
+      );
     }
   };
 
-  const completeHiraganaDay = async (day: number) => {
+  // ===============================
+  // COMPLETE HIRAGANA DAY
+  // ===============================
+
+  const completeHiraganaDay = async (
+    day: number
+  ) => {
     try {
-      if (completedHiraganaDays.includes(day)) {
+      if (
+        completedHiraganaDays.includes(
+          day
+        )
+      ) {
         return;
       }
 
-      const updated = [...completedHiraganaDays, day].sort((a, b) => a - b);
+      const updated = [
+        ...completedHiraganaDays,
+        day,
+      ].sort((a, b) => a - b);
 
-      setCompletedHiraganaDays(updated);
+      setCompletedHiraganaDays(
+        updated
+      );
 
-      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+      await AsyncStorage.setItem(
+        COMPLETED_DAYS_KEY,
+        JSON.stringify(updated)
+      );
     } catch (error) {
-      console.log("Gagal menyimpan progress:", error);
+      console.log(
+        "Gagal menyimpan progress:",
+        error
+      );
     }
   };
 
-  const isHiraganaDayCompleted = (day: number) => {
-    return completedHiraganaDays.includes(day);
+  // ===============================
+  // CHECK COMPLETED DAY
+  // ===============================
+
+  const isHiraganaDayCompleted = (
+    day: number
+  ) => {
+    return completedHiraganaDays.includes(
+      day
+    );
   };
+
+  // ===============================
+  // RECORD WRONG ANSWER
+  // ===============================
+
+  const recordHiraganaWrongAnswer =
+    async (character: string) => {
+      try {
+        const updated = {
+          ...hiraganaWrongAnswers,
+          [character]:
+            (hiraganaWrongAnswers[
+              character
+            ] || 0) + 1,
+        };
+
+        setHiraganaWrongAnswers(
+          updated
+        );
+
+        await AsyncStorage.setItem(
+          WRONG_ANSWERS_KEY,
+          JSON.stringify(updated)
+        );
+      } catch (error) {
+        console.log(
+          "Gagal menyimpan jawaban salah:",
+          error
+        );
+      }
+    };
+
+  // ===============================
+  // RESET WRONG ANSWERS
+  // ===============================
+
+  const resetHiraganaWrongAnswers =
+    async () => {
+      try {
+        setHiraganaWrongAnswers({});
+
+        await AsyncStorage.removeItem(
+          WRONG_ANSWERS_KEY
+        );
+      } catch (error) {
+        console.log(
+          "Gagal reset jawaban salah:",
+          error
+        );
+      }
+    };
 
   return (
     <ProgressContext.Provider
@@ -87,6 +229,10 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
         completedHiraganaDays,
         completeHiraganaDay,
         isHiraganaDayCompleted,
+
+        hiraganaWrongAnswers,
+        recordHiraganaWrongAnswer,
+        resetHiraganaWrongAnswers,
       }}
     >
       {children}
@@ -95,10 +241,13 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
 }
 
 export function useProgress() {
-  const context = useContext(ProgressContext);
+  const context =
+    useContext(ProgressContext);
 
   if (!context) {
-    throw new Error("useProgress harus digunakan di dalam ProgressProvider");
+    throw new Error(
+      "useProgress harus digunakan di dalam ProgressProvider"
+    );
   }
 
   return context;
